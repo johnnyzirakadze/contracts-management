@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\Role;
+use Illuminate\Support\Facades\DB;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -35,5 +36,24 @@ class DatabaseSeeder extends Seeder
                 'role_id' => $adminRoleId,
             ]
         );
+
+        // Domain seeds (order matters for FKs)
+        $this->call([
+            ContractTypeSeeder::class,
+            BranchSeeder::class,
+            DepartmentSeeder::class,
+            ContractorSeeder::class,
+            ContractSeeder::class,
+            AttachedFileSeeder::class,
+        ]);
+
+        // Link contracts' responsible_manager_id to existing admin user
+        $adminId = User::where('email', 'admin@example.com')->value('id');
+        if ($adminId) {
+            DB::table('contracts')->whereIn('id', [1, 2])->update([
+                'responsible_manager_id' => $adminId,
+                'updated_at' => now(),
+            ]);
+        }
     }
 }
