@@ -4,13 +4,9 @@ use App\Http\Controllers\ContractsController;
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ContractorsController;
 
-// Public contracts routes (no auth)
-Route::get('/contracts', [ContractsController::class, 'index']);
-Route::get('/contracts/export', [ContractsController::class, 'export']);
-Route::post('/contracts', [ContractsController::class, 'store']);
-Route::put('/contracts/{id}', [ContractsController::class, 'update']);
-Route::post('/contracts/{id}/attachments', [ContractsController::class, 'uploadAttachment']);
+// No public routes except login
 
 // Public auth route(s)
 Route::prefix('auth')->group(function (): void {
@@ -29,7 +25,19 @@ Route::middleware(['auth:api','jwt.claims','enforce.origin','hsts'])->group(func
     Route::get('/admin/users', [AuthController::class, 'listUsers'])->middleware('role:admin');
     Route::post('/admin/users', [AuthController::class, 'createUser'])->middleware('role:admin');
 
-    // Contracts moved public
+    // Contracts (JWT required)
+    Route::get('/contracts', [ContractsController::class, 'index']);
+    Route::get('/contracts/export', [ContractsController::class, 'export']);
+    Route::post('/contracts', [ContractsController::class, 'store']);
+    Route::put('/contracts/{id}', [ContractsController::class, 'update']);
+    Route::post('/contracts/{id}/attachments', [ContractsController::class, 'uploadAttachment']);
+    Route::delete('/contracts/{id}', [ContractsController::class, 'destroy']);
+
+    // Contractors directory (JWT required)
+    Route::get('/contractors', [ContractorsController::class, 'index']);
+    Route::post('/contractors', [ContractorsController::class, 'store']);
+    Route::put('/contractors/{id}', [ContractorsController::class, 'update']);
+    Route::delete('/contractors/{id}', [ContractorsController::class, 'destroy']);
 });
 
 

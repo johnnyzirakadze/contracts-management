@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Response as ResponseFactory;
+use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -213,6 +214,32 @@ class ContractsController extends Controller
 			'uploaded_at' => now(),
 		]);
 		return response()->json($record, 201);
+	}
+
+	/**
+	 * @OA\Delete(
+	 *   path="/api/contracts/{id}",
+	 *   summary="კონტრაქტის წაშლა",
+	 *   security={{"bearerAuth":{}}},
+	 *   tags={"Contracts"},
+	 *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+	 *   @OA\Response(response=204, description="Deleted")
+	 * )
+	 */
+	public function destroy(int $id)
+	{
+		$contract = Contract::findOrFail($id);
+		// Remove related attached_files and physical files if stored under /storage
+		$attachments = AttachedFile::where('table_name', 'contracts')->where('row_id', $contract->id)->get();
+		foreach ($attachments as $att) {
+			if (is_string($att->file_path) && str_starts_with($att->file_path, '/storage/')) {
+				$relative = ltrim(str_replace('/storage/', '', $att->file_path), '/');
+				Storage::disk('public')->delete($relative);
+			}
+			$att->delete();
+		}
+		$contract->delete();
+		return response()->noContent();
 	}
 
 	private function validateContract(Request $request, bool $isUpdate = false): array

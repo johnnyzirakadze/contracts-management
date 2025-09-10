@@ -202,6 +202,177 @@
                 ]
             }
         },
+        "/api/contractors": {
+            "get": {
+                "tags": [
+                    "Contractors"
+                ],
+                "summary": "კონტრაგენტების სიის ნახვა/ძიება (სწრაფი შევსებისთვის)",
+                "operationId": "ba6e97581a2f26840c9d7a4617df5da5",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "ძიება სახელით/ტელეფონით/ელფოსტით",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "რამდენი ჩანაწერი დავაბრუნოთ (default: 20, max: 100)",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Contractors"
+                ],
+                "summary": "კონტრაგენტის შექმნა",
+                "operationId": "8e5ed6d296b0b24548697fc44e094841",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "description": "დასახელება",
+                                        "type": "string",
+                                        "example": "შპს ახალი პარტნიორი"
+                                    },
+                                    "phone": {
+                                        "description": "ტელეფონი (E.164)",
+                                        "type": "string",
+                                        "example": "+995595000003",
+                                        "nullable": true
+                                    },
+                                    "email": {
+                                        "description": "ელფოსტა",
+                                        "type": "string",
+                                        "example": "partner@example.com",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/contractors/{id}": {
+            "put": {
+                "tags": [
+                    "Contractors"
+                ],
+                "summary": "კონტრაგენტის რედაქტირება",
+                "operationId": "5a6352a805d4178ca5c79e7c0dc5ca7c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "description": "დასახელება",
+                                        "type": "string",
+                                        "example": "შპს პარტნიორი განახლებული"
+                                    },
+                                    "phone": {
+                                        "description": "ტელეფონი (E.164)",
+                                        "type": "string",
+                                        "example": "+995595000004",
+                                        "nullable": true
+                                    },
+                                    "email": {
+                                        "description": "ელფოსტა",
+                                        "type": "string",
+                                        "example": "updated@example.com",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Contractors"
+                ],
+                "summary": "კონტრაგენტის წაშლა",
+                "operationId": "240ad80e5ca75268bf361931e20e8b13",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Deleted"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/contracts": {
             "get": {
                 "tags": [
@@ -586,6 +757,33 @@
                         "bearerAuth": []
                     }
                 ]
+            },
+            "delete": {
+                "tags": [
+                    "Contracts"
+                ],
+                "summary": "კონტრაქტის წაშლა",
+                "operationId": "ee05ce1a42af8edebde125bb5e110b85",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Deleted"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/contracts/{id}/attachments": {
@@ -655,6 +853,10 @@
         {
             "name": "Admin",
             "description": "Admin"
+        },
+        {
+            "name": "Contractors",
+            "description": "Contractors"
         },
         {
             "name": "Contracts",
