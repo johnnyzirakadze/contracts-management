@@ -135,6 +135,7 @@
                     "Auth"
                 ],
                 "summary": "შესვლა და JWT ტოკენის მიღება",
+                "description": "აბრუნებს access_token-ს JSON-ში და აყენებს refresh_token-ს HttpOnly ქუქიში",
                 "operationId": "8dcb70df1020986038d098cc08d05dae",
                 "requestBody": {
                     "required": true,
@@ -213,7 +214,8 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "გასვლა და ტოკენის გაუქმება",
+                "summary": "გასვლა და ტოკენების გაუქმება",
+                "description": "აუქმებს access_token-ს (Bearer) და შლის refresh_token ქუქის",
                 "operationId": "69281b12abb272c76871f19cb17ca563",
                 "responses": {
                     "200": {
@@ -232,18 +234,35 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "JWT ტოკენის განახლება",
-                "operationId": "b2eae7a8032954d25b46c7ec6f489c68",
+                "summary": "JWT access_token-ის განახლება (HttpOnly refresh ქუქით)",
+                "description": "იღებს refresh_token-ს ქუქიდან და აბრუნებს ახალ access_token-ს; აბრუნებს ახალ refresh ქუქისაც (როტაცია)",
+                "operationId": "a009b44559da52df1c36e5e33edd40bc",
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string"
+                                        },
+                                        "token_type": {
+                                            "type": "string"
+                                        },
+                                        "expires_in": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
                     }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
+                }
             }
         },
         "/api/admin/users": {

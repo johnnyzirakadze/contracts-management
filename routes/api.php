@@ -12,13 +12,13 @@ use App\Http\Controllers\AuditLogsController;
 // Public auth route(s)
 Route::prefix('auth')->group(function (): void {
     Route::post('login', [AuthController::class, 'login'])->middleware(['throttle:login','enforce.origin','hsts']);
+    Route::post('refresh', [AuthController::class, 'refreshWithCookie'])->middleware(['throttle:refresh','enforce.origin','hsts']);
 });
 
 // Everything else under /api requires JWT auth by default
 Route::middleware(['auth:api','jwt.claims','enforce.origin','hsts'])->group(function (): void {
     Route::prefix('auth')->group(function (): void {
         Route::post('logout', [AuthController::class, 'logout']);
-        Route::post('refresh', [AuthController::class, 'refresh'])->middleware(['throttle:refresh']);
         Route::get('me', [AuthController::class, 'me']);
     });
 
