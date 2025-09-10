@@ -16,7 +16,7 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Login and get JWT token",
+                "summary": "შესვლა და JWT ტოკენის მიღება",
                 "operationId": "8dcb70df1020986038d098cc08d05dae",
                 "requestBody": {
                     "required": true,
@@ -76,7 +76,7 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Get current user",
+                "summary": "მიმდინარე მომხმარებლის მიღება",
                 "operationId": "b9abb1a7a74670a19c215c2c133f14d8",
                 "responses": {
                     "200": {
@@ -95,7 +95,7 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Logout and invalidate token",
+                "summary": "გასვლა და ტოკენის გაუქმება",
                 "operationId": "69281b12abb272c76871f19cb17ca563",
                 "responses": {
                     "200": {
@@ -114,7 +114,7 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Refresh JWT token",
+                "summary": "JWT ტოკენის განახლება",
                 "operationId": "b2eae7a8032954d25b46c7ec6f489c68",
                 "responses": {
                     "200": {
@@ -133,7 +133,7 @@
                 "tags": [
                     "Admin"
                 ],
-                "summary": "List users (admin only)",
+                "summary": "მომხმარებლების სია (მხოლოდ ადმინი)",
                 "operationId": "7e5808dfe3df39c6bb572cd260b1aac2",
                 "responses": {
                     "200": {
@@ -150,7 +150,7 @@
                 "tags": [
                     "Admin"
                 ],
-                "summary": "Create a user (admin only)",
+                "summary": "მომხმარებლის შექმნა (მხოლოდ ადმინი)",
                 "operationId": "764009fcfc428f5e7cf976f3e247a206",
                 "requestBody": {
                     "required": true,
@@ -201,6 +201,441 @@
                     }
                 ]
             }
+        },
+        "/api/contracts": {
+            "get": {
+                "tags": [
+                    "Contracts"
+                ],
+                "summary": "კონტრაქტების სიის ნახვა",
+                "operationId": "d8997f490da9062b7b77f68eaa735f07",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "ძიება მხოლოდ სახელით (party_name)",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "სტატუსი (მაგ: აქტივი, დასამტკიცებელი და სხვ.)",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sign_date_from",
+                        "in": "query",
+                        "description": "ხელმოწერის თარიღი - საწყისი",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "sign_date_to",
+                        "in": "query",
+                        "description": "ხელმოწერის თარიღი - საბოლოო",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "expiry_date_from",
+                        "in": "query",
+                        "description": "ვადის თარიღი - საწყისი",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "expiry_date_to",
+                        "in": "query",
+                        "description": "ვადის თარიღი - საბოლოო",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "description": "სორტირების ველი",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "id",
+                                "contract_number",
+                                "sign_date",
+                                "expiry_date",
+                                "amount",
+                                "created_at",
+                                "updated_at"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "sort_dir",
+                        "in": "query",
+                        "description": "სორტირების მიმართულება",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Contracts"
+                ],
+                "summary": "კონტრაქტის შექმნა",
+                "operationId": "674f25b6428b177ae2a1fe1123b4dcf6",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "party_name",
+                                    "party_identifier",
+                                    "contract_type_id",
+                                    "subject",
+                                    "sign_date",
+                                    "branch_id",
+                                    "currency",
+                                    "status",
+                                    "payment_type"
+                                ],
+                                "properties": {
+                                    "party_name": {
+                                        "description": "მეორე მხარის სახელი (legacy)",
+                                        "type": "string",
+                                        "example": "შპს ალფა"
+                                    },
+                                    "party_identifier": {
+                                        "description": "იდენტიფიკატორი 9-11 ციფრი",
+                                        "type": "string",
+                                        "example": "123456789"
+                                    },
+                                    "contractor_id": {
+                                        "description": "კონტრაქტორის ID (ნებაყოფლობითი)",
+                                        "type": "integer",
+                                        "example": 1,
+                                        "nullable": true
+                                    },
+                                    "contract_number": {
+                                        "description": "ხელშეკრულების ნომერი (უნიკალური)",
+                                        "type": "string",
+                                        "example": "CNT-2025-0003",
+                                        "nullable": true
+                                    },
+                                    "contract_type_id": {
+                                        "description": "ხელშეკრულების ტიპი",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "subject": {
+                                        "description": "საგანი/შინაარსი",
+                                        "type": "string",
+                                        "example": "სერვისების მიწოდება და მხარდაჭერა"
+                                    },
+                                    "sign_date": {
+                                        "description": "ხელმოწერის თარიღი",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-09-10"
+                                    },
+                                    "expiry_date": {
+                                        "description": "ვადის თარიღი (>= sign_date)",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-09-10",
+                                        "nullable": true
+                                    },
+                                    "branch_id": {
+                                        "description": "ფილიალი",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "department_id": {
+                                        "description": "დეპარტამენტი",
+                                        "type": "integer",
+                                        "example": 1,
+                                        "nullable": true
+                                    },
+                                    "currency": {
+                                        "description": "ვალუტა ISO 4217",
+                                        "type": "string",
+                                        "example": "GEL"
+                                    },
+                                    "amount": {
+                                        "description": "თანხა",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 12000,
+                                        "nullable": true
+                                    },
+                                    "status": {
+                                        "description": "სტატუსი (default: დასამტკიცებელი)",
+                                        "type": "string",
+                                        "example": "დასამტკიცებელი"
+                                    },
+                                    "responsible_manager_id": {
+                                        "description": "პასუხისმგებელი მენეჯერი (users.id)",
+                                        "type": "integer",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "payment_type": {
+                                        "description": "გადახდის ტიპი",
+                                        "type": "string",
+                                        "example": "ერთჯერადი"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/contracts/export": {
+            "get": {
+                "tags": [
+                    "Contracts"
+                ],
+                "summary": "კონტრაქტების ექსპორტი CSV/XLSX/PDF",
+                "operationId": "eb237ab3346231149b869ec53daab646",
+                "parameters": [
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "description": "ექსპორტის ფორმატი (ფილტრებიც მოქმედებს)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "csv",
+                                "xlsx",
+                                "pdf"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "File stream"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/contracts/{id}": {
+            "put": {
+                "tags": [
+                    "Contracts"
+                ],
+                "summary": "კონტრაქტის განახლება",
+                "operationId": "c61602101aab0981a7e307f867771f98",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "party_name": {
+                                        "description": "მეორე მხარის სახელი (legacy)",
+                                        "type": "string",
+                                        "example": "შპს ალფა"
+                                    },
+                                    "party_identifier": {
+                                        "description": "იდენტიფიკატორი 9-11 ციფრი",
+                                        "type": "string",
+                                        "example": "123456789"
+                                    },
+                                    "contractor_id": {
+                                        "description": "კონტრაქტორის ID",
+                                        "type": "integer",
+                                        "example": 2,
+                                        "nullable": true
+                                    },
+                                    "contract_number": {
+                                        "description": "ხელშეკრულების ნომერი (უნიკალური)",
+                                        "type": "string",
+                                        "example": "CNT-2025-0003",
+                                        "nullable": true
+                                    },
+                                    "contract_type_id": {
+                                        "description": "ხელშეკრულების ტიპი",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "subject": {
+                                        "description": "საგანი/შინაარსი",
+                                        "type": "string",
+                                        "example": "განახლებული აღწერა"
+                                    },
+                                    "sign_date": {
+                                        "description": "ხელმოწერის თარიღი",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-09-10"
+                                    },
+                                    "expiry_date": {
+                                        "description": "ვადის თარიღი (>= sign_date)",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-09-10",
+                                        "nullable": true
+                                    },
+                                    "branch_id": {
+                                        "description": "ფილიალი",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "department_id": {
+                                        "description": "დეპარტამენტი",
+                                        "type": "integer",
+                                        "example": 3,
+                                        "nullable": true
+                                    },
+                                    "currency": {
+                                        "description": "ვალუტა ISO 4217",
+                                        "type": "string",
+                                        "example": "GEL"
+                                    },
+                                    "amount": {
+                                        "description": "თანხა",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 15000,
+                                        "nullable": true
+                                    },
+                                    "status": {
+                                        "description": "სტატუსი",
+                                        "type": "string",
+                                        "example": "აქტიური"
+                                    },
+                                    "responsible_manager_id": {
+                                        "description": "პასუხისმგებელი მენეჯერი",
+                                        "type": "integer",
+                                        "example": 1,
+                                        "nullable": true
+                                    },
+                                    "payment_type": {
+                                        "description": "გადახდის ტიპი",
+                                        "type": "string",
+                                        "example": "ყოველთვიური"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/contracts/{id}/attachments": {
+            "post": {
+                "tags": [
+                    "Contracts"
+                ],
+                "summary": "ფაილების ატვირთვა კონტრაქტზე",
+                "operationId": "8fe40b851ac0b5931a80dc57770eccd0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "file"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "description": "ფაილის ტიპი: pdf/doc/docx (≤50MB)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Uploaded"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -220,6 +655,10 @@
         {
             "name": "Admin",
             "description": "Admin"
+        },
+        {
+            "name": "Contracts",
+            "description": "Contracts"
         }
     ]
 }

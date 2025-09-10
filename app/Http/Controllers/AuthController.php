@@ -24,7 +24,7 @@ class AuthController extends Controller
      * @OA\Post(
      *   path="/api/auth/login",
      *   tags={"Auth"},
-     *   summary="Login and get JWT token",
+     *   summary="შესვლა და JWT ტოკენის მიღება",
      *   @OA\RequestBody(
      *     required=true,
      *     @OA\JsonContent(required={"email","password"},
@@ -72,7 +72,7 @@ class AuthController extends Controller
      *   path="/api/auth/me",
      *   tags={"Auth"},
      *   security={{"bearerAuth":{}}},
-     *   summary="Get current user",
+     *   summary="მიმდინარე მომხმარებლის მიღება",
      *   @OA\Response(response=200, description="OK")
      * )
      */
@@ -90,7 +90,7 @@ class AuthController extends Controller
      *   path="/api/auth/logout",
      *   tags={"Auth"},
      *   security={{"bearerAuth":{}}},
-     *   summary="Logout and invalidate token",
+     *   summary="გასვლა და ტოკენის გაუქმება",
      *   @OA\Response(response=200, description="OK")
      * )
      */
@@ -107,7 +107,7 @@ class AuthController extends Controller
      *   path="/api/auth/refresh",
      *   tags={"Auth"},
      *   security={{"bearerAuth":{}}},
-     *   summary="Refresh JWT token",
+     *   summary="JWT ტოკენის განახლება",
      *   @OA\Response(response=200, description="OK")
      * )
      */
@@ -132,7 +132,7 @@ class AuthController extends Controller
      *   path="/api/admin/users",
      *   tags={"Admin"},
      *   security={{"bearerAuth":{}}},
-     *   summary="Create a user (admin only)",
+     *   summary="მომხმარებლის შექმნა (მხოლოდ ადმინი)",
      *   @OA\RequestBody(
      *     required=true,
      *     @OA\JsonContent(required={"name","email","password","role"},
@@ -173,7 +173,7 @@ class AuthController extends Controller
      *   path="/api/admin/users",
      *   tags={"Admin"},
      *   security={{"bearerAuth":{}}},
-     *   summary="List users (admin only)",
+     *   summary="მომხმარებლების სია (მხოლოდ ადმინი)",
      *   @OA\Response(response=200, description="OK")
      * )
      */

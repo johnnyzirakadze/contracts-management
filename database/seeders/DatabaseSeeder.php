@@ -26,13 +26,13 @@ class DatabaseSeeder extends Seeder
             Role::firstOrCreate(['key' => $role['key']], $role);
         }
 
-        // Create initial admin
+        // Create or update initial admin (password: admin123)
         $adminRoleId = Role::where('key', 'admin')->value('id');
-        User::firstOrCreate(
+        User::updateOrCreate(
             ['email' => 'admin@example.com'],
             [
                 'name' => 'Admin',
-                'password' => 'Admin@123456',
+                'password' => 'admin123',
                 'role_id' => $adminRoleId,
             ]
         );
