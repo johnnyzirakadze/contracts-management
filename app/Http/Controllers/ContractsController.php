@@ -14,6 +14,7 @@ use OpenApi\Annotations as OA;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Mpdf\Mpdf;
+use App\Services\AuditLogger;
 
 class ContractsController extends Controller
 {
@@ -23,7 +24,7 @@ class ContractsController extends Controller
 	 *   summary="კონტრაქტების სიის ნახვა",
 	 *   security={{"bearerAuth":{}}},
 	 *   tags={"Contracts"},
-	 *   @OA\Parameter(name="q", in="query", description="ძიება მხოლოდ სახელით (party_name)", @OA\Schema(type="string")),
+	 *   @OA\Parameter(name="party_name", in="query", description="ძიება მხოლოდ სახელით (party_name)", @OA\Schema(type="string")),
 	 *   @OA\Parameter(name="status", in="query", description="სტატუსი (მაგ: აქტივი, დასამტკიცებელი და სხვ.)", @OA\Schema(type="string")),
 	 *   @OA\Parameter(name="sign_date_from", in="query", description="ხელმოწერის თარიღი - საწყისი", @OA\Schema(type="string", format="date")),
 	 *   @OA\Parameter(name="sign_date_to", in="query", description="ხელმოწერის თარიღი - საბოლოო", @OA\Schema(type="string", format="date")),
@@ -42,6 +43,26 @@ class ContractsController extends Controller
 
 		$items = $query->get();
 		return response()->json($items);
+	}
+
+	/**
+	 * @OA\Get(
+	 *   path="/api/contracts/{id}/attachments",
+	 *   summary="კონტრაქტზე მიმაგრებული ფაილების სია",
+	 *   security={{"bearerAuth":{}}},
+	 *   tags={"Contracts"},
+	 *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+	 *   @OA\Response(response=200, description="OK")
+	 * )
+	 */
+	public function listAttachments(int $id): JsonResponse
+	{
+		$contract = Contract::findOrFail($id);
+		$files = AttachedFile::where('table_name', 'contracts')
+			->where('row_id', $contract->id)
+			->orderBy('uploaded_at', 'desc')
+			->get();
+		return response()->json($files);
 	}
 
 	/**
@@ -134,6 +155,7 @@ class ContractsController extends Controller
 			$data['status'] = 'დასამტკიცებელი';
 		}
 		$contract = Contract::create($data);
+		AuditLogger::log(auth('api')->user(), 'contracts', $contract->id, 'create', null, $contract->toArray());
 		return response()->json($contract, 201);
 	}
 
@@ -171,14 +193,16 @@ class ContractsController extends Controller
 	{
 		$data = $this->validateContract($request, isUpdate: true);
 		$contract = Contract::findOrFail($id);
+		$old = $contract->getOriginal();
 		$contract->update($data);
+		AuditLogger::log(auth('api')->user(), 'contracts', $contract->id, 'update', $old, $contract->toArray());
 		return response()->json($contract);
 	}
 
 	/**
 	 * @OA\Post(
 	 *   path="/api/contracts/{id}/attachments",
-	 *   summary="ფაილების ატვირთვა კონტრაქტზე",
+	 *   summary="ფაილების ატვირთვა კონტრაქტზე (მხარდაჭერა მრავალში)",
 	 *   security={{"bearerAuth":{}}},
 	 *   tags={"Contracts"},
 	 *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
@@ -186,8 +210,8 @@ class ContractsController extends Controller
 	 *     required=true,
 	 *     @OA\MediaType(mediaType="multipart/form-data",
 	 *       @OA\Schema(
-	 *         required={"file"},
-	 *         @OA\Property(property="file", type="string", format="binary", description="ფაილის ტიპი: pdf/doc/docx (≤50MB)")
+	 *         @OA\Property(property="files[]", type="array", @OA\Items(type="string", format="binary"), description="ერთზე მეტი ფაილი (pdf/doc/docx/xlsx/csv, ≤50MB თითოეული)"),
+	 *         @OA\Property(property="file", type="string", format="binary", description="ერთეული ფაილი (ალტერნატიული ველი)" )
 	 *       )
 	 *     )
 	 *   ),
@@ -197,23 +221,42 @@ class ContractsController extends Controller
 	public function uploadAttachment(Request $request, int $id): JsonResponse
 	{
 		$contract = Contract::findOrFail($id);
-		$validated = $request->validate([
-			'file' => ['required','file','max:51200','mimetypes:application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword,application/octet-stream']
-		]);
-		$file = $validated['file'];
-		$ext = strtolower($file->getClientOriginalExtension() ?: '');
-		$type = in_array($ext, ['pdf']) ? 'pdf' : (in_array($ext, ['doc','docx']) ? 'docx' : 'other');
-		$storedPath = $file->store('contracts','public');
-		$record = AttachedFile::create([
-			'row_id' => $contract->id,
-			'table_name' => 'contracts',
-			'file_name' => $file->getClientOriginalName(),
-			'file_type' => $type,
-			'file_size' => $file->getSize(),
-			'file_path' => '/storage/'.$storedPath,
-			'uploaded_at' => now(),
-		]);
-		return response()->json($record, 201);
+
+		// Accept either multiple files (files[]) or single file (file)
+		$files = [];
+		if ($request->hasFile('files')) {
+			$files = (array) $request->file('files');
+		} elseif ($request->hasFile('file')) {
+			$files = [ $request->file('file') ];
+		}
+		if (empty($files)) {
+			return response()->json(['message' => 'Validation failed', 'errors' => ['files' => ['No file provided. Use files[] or file.']]], 422);
+		}
+
+		$created = [];
+		foreach ($files as $file) {
+			if (! $file->isValid()) {
+				return response()->json(['message' => 'Validation failed', 'errors' => ['files' => ['Invalid upload.']]], 422);
+			}
+			if ($file->getSize() > 50 * 1024 * 1024) {
+				return response()->json(['message' => 'Validation failed', 'errors' => ['files' => ['File too large.']]], 422);
+			}
+			$ext = strtolower($file->getClientOriginalExtension() ?: '');
+			$type = in_array($ext, ['pdf']) ? 'pdf' : (in_array($ext, ['doc','docx']) ? 'docx' : 'other');
+			$storedPath = $file->store('contracts','public');
+			$record = AttachedFile::create([
+				'row_id' => $contract->id,
+				'table_name' => 'contracts',
+				'file_name' => $file->getClientOriginalName(),
+				'file_type' => $type,
+				'file_size' => $file->getSize(),
+				'file_path' => '/storage/'.$storedPath,
+				'uploaded_at' => now(),
+			]);
+			$created[] = $record;
+			AuditLogger::log(auth('api')->user(), 'attached_files', $record->id, 'upload', null, $record->toArray());
+		}
+		return response()->json($created, 201);
 	}
 
 	/**
@@ -236,9 +279,13 @@ class ContractsController extends Controller
 				$relative = ltrim(str_replace('/storage/', '', $att->file_path), '/');
 				Storage::disk('public')->delete($relative);
 			}
+			$attOld = $att->toArray();
 			$att->delete();
+			AuditLogger::log(auth('api')->user(), 'attached_files', $att->id, 'unlink', $attOld, null);
 		}
+		$old = $contract->toArray();
 		$contract->delete();
+		AuditLogger::log(auth('api')->user(), 'contracts', $id, 'delete', $old, null);
 		return response()->noContent();
 	}
 
@@ -272,7 +319,8 @@ class ContractsController extends Controller
 
 	private function applyFilters(Request $request, Builder $query): Builder
 	{
-		if ($search = trim((string) $request->query('q', ''))) {
+		$term = $request->query('party_name', $request->query('name', $request->query('q', '')));
+		if ($search = trim((string) $term)) {
 			$query->where(function (Builder $q) use ($search): void {
 				$q->where('party_name', 'like', "%{$search}%");
 			});

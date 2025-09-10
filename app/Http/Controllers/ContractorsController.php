@@ -6,6 +6,7 @@ use App\Models\Contractor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use OpenApi\Annotations as OA;
+use App\Services\AuditLogger;
 
 class ContractorsController extends Controller
 {
@@ -15,7 +16,7 @@ class ContractorsController extends Controller
 	 *   summary="კონტრაგენტების სიის ნახვა/ძიება (სწრაფი შევსებისთვის)",
 	 *   security={{"bearerAuth":{}}},
 	 *   tags={"Contractors"},
-	 *   @OA\Parameter(name="q", in="query", description="ძიება სახელით/ტელეფონით/ელფოსტით", @OA\Schema(type="string")),
+	 *   @OA\Parameter(name="name", in="query", description="ძიება სახელით/ტელეფონით/ელფოსტით", @OA\Schema(type="string")),
 	 *   @OA\Parameter(name="limit", in="query", description="რამდენი ჩანაწერი დავაბრუნოთ (default: 20, max: 100)", @OA\Schema(type="integer")),
 	 *   @OA\Response(response=200, description="OK")
 	 * )
@@ -23,7 +24,8 @@ class ContractorsController extends Controller
 	public function index(Request $request): JsonResponse
 	{
 		$query = Contractor::query();
-		if ($search = trim((string) $request->query('q', ''))) {
+		$term = $request->query('name', $request->query('q', ''));
+		if ($search = trim((string) $term)) {
 			$query->where(function ($q) use ($search): void {
 				$q->where('name', 'like', "%{$search}%")
 					->orWhere('phone', 'like', "%{$search}%")
@@ -60,6 +62,7 @@ class ContractorsController extends Controller
 			'email' => ['nullable','email','max:255'],
 		]);
 		$contractor = Contractor::create($data);
+		AuditLogger::log(auth('api')->user(), 'contractors', $contractor->id, 'create', null, $contractor->toArray());
 		return response()->json($contractor, 201);
 	}
 
@@ -88,7 +91,9 @@ class ContractorsController extends Controller
 			'email' => ['nullable','email','max:255'],
 		]);
 		$contractor = Contractor::findOrFail($id);
+		$old = $contractor->getOriginal();
 		$contractor->update($data);
+		AuditLogger::log(auth('api')->user(), 'contractors', $contractor->id, 'update', $old, $contractor->toArray());
 		return response()->json($contractor);
 	}
 
@@ -105,7 +110,9 @@ class ContractorsController extends Controller
 	public function destroy(int $id)
 	{
 		$contractor = Contractor::findOrFail($id);
+		$old = $contractor->toArray();
 		$contractor->delete();
+		AuditLogger::log(auth('api')->user(), 'contractors', $id, 'delete', $old, null);
 		return response()->noContent();
 	}
 }

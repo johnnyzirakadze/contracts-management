@@ -5,6 +5,7 @@ use App\Http\Controllers\ContractsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ContractorsController;
+use App\Http\Controllers\AuditLogsController;
 
 // No public routes except login
 
@@ -28,6 +29,7 @@ Route::middleware(['auth:api','jwt.claims','enforce.origin','hsts'])->group(func
     // Contracts (JWT required)
     Route::get('/contracts', [ContractsController::class, 'index']);
     Route::get('/contracts/export', [ContractsController::class, 'export']);
+    Route::get('/contracts/{id}/attachments', [ContractsController::class, 'listAttachments']);
     Route::post('/contracts', [ContractsController::class, 'store']);
     Route::put('/contracts/{id}', [ContractsController::class, 'update']);
     Route::post('/contracts/{id}/attachments', [ContractsController::class, 'uploadAttachment']);
@@ -38,6 +40,10 @@ Route::middleware(['auth:api','jwt.claims','enforce.origin','hsts'])->group(func
     Route::post('/contractors', [ContractorsController::class, 'store']);
     Route::put('/contractors/{id}', [ContractorsController::class, 'update']);
     Route::delete('/contractors/{id}', [ContractorsController::class, 'destroy']);
+
+    // Audit logs
+    Route::get('/audit-logs', [AuditLogsController::class, 'index']);
+    Route::get('/audit-logs/export', [AuditLogsController::class, 'export']);
 });
 
 

@@ -11,6 +11,124 @@
         }
     ],
     "paths": {
+        "/api/audit-logs": {
+            "get": {
+                "tags": [
+                    "Audit"
+                ],
+                "summary": "აუდიტის ჟურნალი - სიის ნახვა",
+                "operationId": "8a24c03b06fe3071c4035f4176892716",
+                "parameters": [
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "description": "თარიღი - საწყისი (YYYY-MM-DD)",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "description": "თარიღი - საბოლოო",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "table",
+                        "in": "query",
+                        "description": "ცხრილის სახელი",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "action",
+                        "in": "query",
+                        "description": "მოქმედება (create/update/delete/upload/unlink)",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/audit-logs/export": {
+            "get": {
+                "tags": [
+                    "Audit"
+                ],
+                "summary": "აუდიტ-რეპორტი ექსპორტი CSV/JSON",
+                "operationId": "299cd68c6a859cd284360cc0b9444c26",
+                "parameters": [
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "csv",
+                                "json"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "table",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "action",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/auth/login": {
             "post": {
                 "tags": [
@@ -211,7 +329,7 @@
                 "operationId": "ba6e97581a2f26840c9d7a4617df5da5",
                 "parameters": [
                     {
-                        "name": "q",
+                        "name": "name",
                         "in": "query",
                         "description": "ძიება სახელით/ტელეფონით/ელფოსტით",
                         "schema": {
@@ -382,7 +500,7 @@
                 "operationId": "d8997f490da9062b7b77f68eaa735f07",
                 "parameters": [
                     {
-                        "name": "q",
+                        "name": "party_name",
                         "in": "query",
                         "description": "ძიება მხოლოდ სახელით (party_name)",
                         "schema": {
@@ -599,6 +717,87 @@
                 ]
             }
         },
+        "/api/contracts/{id}/attachments": {
+            "get": {
+                "tags": [
+                    "Contracts"
+                ],
+                "summary": "კონტრაქტზე მიმაგრებული ფაილების სია",
+                "operationId": "97e2438635edc463044a324ff7d61cf5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Contracts"
+                ],
+                "summary": "ფაილების ატვირთვა კონტრაქტზე (მხარდაჭერა მრავალში)",
+                "operationId": "8fe40b851ac0b5931a80dc57770eccd0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "files[]": {
+                                        "description": "ერთზე მეტი ფაილი (pdf/doc/docx/xlsx/csv, ≤50MB თითოეული)",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    },
+                                    "file": {
+                                        "description": "ერთეული ფაილი (ალტერნატიული ველი)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Uploaded"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/contracts/export": {
             "get": {
                 "tags": [
@@ -785,55 +984,6 @@
                     }
                 ]
             }
-        },
-        "/api/contracts/{id}/attachments": {
-            "post": {
-                "tags": [
-                    "Contracts"
-                ],
-                "summary": "ფაილების ატვირთვა კონტრაქტზე",
-                "operationId": "8fe40b851ac0b5931a80dc57770eccd0",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "required": [
-                                    "file"
-                                ],
-                                "properties": {
-                                    "file": {
-                                        "description": "ფაილის ტიპი: pdf/doc/docx (≤50MB)",
-                                        "type": "string",
-                                        "format": "binary"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Uploaded"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
         }
     },
     "components": {
@@ -846,6 +996,10 @@
         }
     },
     "tags": [
+        {
+            "name": "Audit",
+            "description": "Audit"
+        },
         {
             "name": "Auth",
             "description": "Auth"
