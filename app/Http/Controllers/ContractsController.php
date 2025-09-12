@@ -211,7 +211,7 @@ class ContractsController extends Controller
 	/**
 	 * @OA\Post(
 	 *   path="/api/contracts/{id}/attachments",
-	 *   summary="ფაილების ატვირთვა კონტრაქტზე (მხარდაჭერა მრავალში)",
+	 *   summary="ფაილების ატვირთვა კონტრაქტზე",
 	 *   security={{"bearerAuth":{}}},
 	 *   tags={"Contracts"},
 	 *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),

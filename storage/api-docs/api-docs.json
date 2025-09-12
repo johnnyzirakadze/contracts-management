@@ -774,7 +774,7 @@
                 "tags": [
                     "Contracts"
                 ],
-                "summary": "ფაილების ატვირთვა კონტრაქტზე (მხარდაჭერა მრავალში)",
+                "summary": "ფაილების ატვირთვა კონტრაქტზე",
                 "operationId": "8fe40b851ac0b5931a80dc57770eccd0",
                 "parameters": [
                     {
