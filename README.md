@@ -96,6 +96,11 @@ php artisan config:clear
 php artisan jwt:secret --yes
 ```
 
+თუ მიიღე შეცდომა "Please provide a valid cache path", გაუშვი:
+```bash
+cd /opt/homebrew/var/www/contracts-management && mkdir -p storage/framework/{cache/data,sessions,views,testing} bootstrap/cache && chmod -R 775 storage bootstrap/cache && php artisan optimize:clear | cat
+```
+
 ## შეტყობინებები (Email/SMS)
 
 ტესტური გაგზავნები:
