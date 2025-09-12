@@ -195,6 +195,13 @@ class ContractsController extends Controller
 	{
 		$data = $this->validateContract($request, isUpdate: true);
 		$contract = Contract::findOrFail($id);
+		// ACL: Only owner (responsible_manager_id == me) or admin can edit record
+		$user = auth('api')->user();
+		$roleKey = optional($user?->role)->key;
+		$owns = $user && (int) $contract->responsible_manager_id === (int) $user->id;
+		if (! $owns && $roleKey !== 'admin') {
+			return response()->json(['message' => 'Forbidden'], 403);
+		}
 		$old = $contract->getOriginal();
 		$contract->update($data);
 		AuditLogger::log(auth('api')->user(), 'contracts', $contract->id, 'update', $old, $contract->toArray());
@@ -223,6 +230,13 @@ class ContractsController extends Controller
 	public function uploadAttachment(Request $request, int $id): JsonResponse
 	{
 		$contract = Contract::findOrFail($id);
+		// ACL: Only owner (responsible_manager_id == me) or admin can upload files
+		$user = auth('api')->user();
+		$roleKey = optional($user?->role)->key;
+		$owns = $user && (int) $contract->responsible_manager_id === (int) $user->id;
+		if (! $owns && $roleKey !== 'admin') {
+			return response()->json(['message' => 'Forbidden'], 403);
+		}
 
 		// Accept either multiple files (files[]) or single file (file)
 		$files = [];

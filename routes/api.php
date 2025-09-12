@@ -26,24 +26,24 @@ Route::middleware(['auth:api','jwt.claims','enforce.origin','hsts'])->group(func
     Route::get('/admin/users', [AuthController::class, 'listUsers'])->middleware('role:admin');
     Route::post('/admin/users', [AuthController::class, 'createUser'])->middleware('role:admin');
 
-    // Contracts (JWT required)
-    Route::get('/contracts', [ContractsController::class, 'index']);
-    Route::get('/contracts/export', [ContractsController::class, 'export']);
-    Route::get('/contracts/{id}/attachments', [ContractsController::class, 'listAttachments']);
-    Route::post('/contracts', [ContractsController::class, 'store']);
-    Route::put('/contracts/{id}', [ContractsController::class, 'update']);
-    Route::post('/contracts/{id}/attachments', [ContractsController::class, 'uploadAttachment']);
-    Route::delete('/contracts/{id}', [ContractsController::class, 'destroy']);
+    // Contracts
+    Route::get('/contracts', [ContractsController::class, 'index'])->middleware('role:viewer,editor,approver,admin');
+    Route::get('/contracts/export', [ContractsController::class, 'export'])->middleware('role:viewer,editor,approver,admin');
+    Route::get('/contracts/{id}/attachments', [ContractsController::class, 'listAttachments'])->middleware('role:viewer,editor,approver,admin');
+    Route::post('/contracts', [ContractsController::class, 'store'])->middleware('role:editor,admin');
+    Route::put('/contracts/{id}', [ContractsController::class, 'update'])->middleware('role:editor,approver,admin');
+    Route::post('/contracts/{id}/attachments', [ContractsController::class, 'uploadAttachment'])->middleware('role:editor,admin');
+    Route::delete('/contracts/{id}', [ContractsController::class, 'destroy'])->middleware('role:admin');
 
-    // Contractors directory (JWT required)
-    Route::get('/contractors', [ContractorsController::class, 'index']);
-    Route::post('/contractors', [ContractorsController::class, 'store']);
-    Route::put('/contractors/{id}', [ContractorsController::class, 'update']);
-    Route::delete('/contractors/{id}', [ContractorsController::class, 'destroy']);
+    // Contractors directory (reference data)
+    Route::get('/contractors', [ContractorsController::class, 'index'])->middleware('role:viewer,editor,approver,admin');
+    Route::post('/contractors', [ContractorsController::class, 'store'])->middleware('role:admin');
+    Route::put('/contractors/{id}', [ContractorsController::class, 'update'])->middleware('role:admin');
+    Route::delete('/contractors/{id}', [ContractorsController::class, 'destroy'])->middleware('role:admin');
 
-    // Audit logs
-    Route::get('/audit-logs', [AuditLogsController::class, 'index']);
-    Route::get('/audit-logs/export', [AuditLogsController::class, 'export']);
+    // Audit logs (visible only to Approver/Admin)
+    Route::get('/audit-logs', [AuditLogsController::class, 'index'])->middleware('role:approver,admin');
+    Route::get('/audit-logs/export', [AuditLogsController::class, 'export'])->middleware('role:approver,admin');
 });
 
 
