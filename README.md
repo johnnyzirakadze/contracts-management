@@ -1,7 +1,5 @@
 # [ქართული](README.md) | [English](README.en.md)
 
-#
-#
 # კონტრაქტების მართვის API – ტექნიკური დავალება
 
 ეს არის Laravel-ზე აგებული კონტრაქტების მართვის API: ავტენტიკაცია/JWT, როლები (RBAC), შეტყობინებები (Email/SMS), ბექაპი და Swagger დოკუმენტაცია.
@@ -18,7 +16,8 @@
 # 1) კლონი და შესვლა
 git clone <repo-url> contracts-management && cd contracts-management
 
-# 2) .env
+# 2) .env კონფიგურაცია
+# იხილე სრული მაგალითი და კომენტარები ფაილში `.env.example`. დააკოპირე და მოარგე:
 cp .env.example .env
 # დაარედაქტირე .env → შეავსე DB_* (სახელი/მომხმარებელი/პაროლი) და საჭირო ველები (APP_URL და სხვ.)
 
@@ -56,61 +55,6 @@ API ბაზა: `http://127.0.0.1:8000/api`
 5) ავტენტიკაცია
 - ადმინი (seed): email `admin@example.com`, პაროლი `admin123`
 - JWT მისაღებად: `POST /api/auth/login` JSON `{ "email":"admin@example.com", "password":"admin123" }`
-
-## .env ფაილის მაგალითი
-
-```env
-APP_NAME="Contracts Management"
-APP_ENV=local
-APP_KEY=
-APP_DEBUG=true
-APP_URL=http://localhost
-APP_FORCE_HTTPS=false
-
-# ენა/დროის სარტყელი
-APP_LOCALE=en
-APP_FALLBACK_LOCALE=en
-APP_FAKER_LOCALE=en_US
-
-# CORS (კომით გამოყოფილი)
-ALLOWED_ORIGINS=http://127.0.0.1:8000,http://localhost:8000
-
-# მონაცემთა ბაზა (PostgreSQL)
-DB_CONNECTION=pgsql
-DB_HOST=127.0.0.1
-DB_PORT=5432
-DB_DATABASE=contracts
-DB_USERNAME=contracts
-DB_PASSWORD=CHANGE_ME
-
-# Queue (ლოკალურად უფრო მარტივად – sync)
-QUEUE_CONNECTION=sync
-
-# ელფოსტა (ლოგში ჩაწერა; პროდაქშენზე გადადი smtp-ზე)
-MAIL_MAILER=log
-MAIL_HOST=
-MAIL_PORT=587
-MAIL_SCHEME=tls
-MAIL_USERNAME=
-MAIL_PASSWORD=
-MAIL_FROM_ADDRESS=test@example.com
-MAIL_FROM_NAME="Contracts"
-
-# Twilio SMS (საჭიროებისამებრ შეავსე)
-TWILIO_SID=
-TWILIO_TOKEN=
-TWILIO_FROM=
-
-# Swagger UI
-L5_SWAGGER_UI_PERSIST_AUTHORIZATION=true
-L5_SWAGGER_CONST_HOST=http://localhost
-
-# JWT (გაუშვი: php artisan jwt:secret)
-JWT_SECRET=
-
-# ფაილების დისკი
-FILESYSTEM_DISK=public
-```
 
 .env გამართვის შემდეგ ამოშალე ქეში და დააყენე JWT საიდუმლო:
 ```bash

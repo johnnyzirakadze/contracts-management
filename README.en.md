@@ -16,7 +16,8 @@ This is a Laravel-based Contracts Management API: authentication/JWT, roles (RBA
 # 1) Clone and enter
 git clone <repo-url> contracts-management && cd contracts-management
 
-# 2) .env
+# 2) .env configuration
+# See the full example with comments in `.env.example`. Copy and adjust:
 cp .env.example .env
 # Edit .env → fill DB_* (name/user/password) and required fields (APP_URL, etc.)
 
@@ -54,61 +55,6 @@ API base: `http://127.0.0.1:8000/api`
 5) Authentication
 - Admin (seed): email `admin@example.com`, password `admin123`
 - To get JWT: `POST /api/auth/login` JSON `{ "email":"admin@example.com", "password":"admin123" }`
-
-## Example .env
-
-```env
-APP_NAME="Contracts Management"
-APP_ENV=local
-APP_KEY=
-APP_DEBUG=true
-APP_URL=http://localhost
-APP_FORCE_HTTPS=false
-
-# Language/Timezone
-APP_LOCALE=en
-APP_FALLBACK_LOCALE=en
-APP_FAKER_LOCALE=en_US
-
-# CORS (comma-separated)
-ALLOWED_ORIGINS=http://127.0.0.1:8000,http://localhost:8000
-
-# Database (PostgreSQL)
-DB_CONNECTION=pgsql
-DB_HOST=127.0.0.1
-DB_PORT=5432
-DB_DATABASE=contracts
-DB_USERNAME=contracts
-DB_PASSWORD=CHANGE_ME
-
-# Queue (simpler locally – sync)
-QUEUE_CONNECTION=sync
-
-# Mail (log by default; switch to smtp in production)
-MAIL_MAILER=log
-MAIL_HOST=
-MAIL_PORT=587
-MAIL_SCHEME=tls
-MAIL_USERNAME=
-MAIL_PASSWORD=
-MAIL_FROM_ADDRESS=test@example.com
-MAIL_FROM_NAME="Contracts"
-
-# Twilio SMS (fill if needed)
-TWILIO_SID=
-TWILIO_TOKEN=
-TWILIO_FROM=
-
-# Swagger UI
-L5_SWAGGER_UI_PERSIST_AUTHORIZATION=true
-L5_SWAGGER_CONST_HOST=http://localhost
-
-# JWT (run: php artisan jwt:secret)
-JWT_SECRET=
-
-# Filesystem disk
-FILESYSTEM_DISK=public
-```
 
 After configuring .env, clear config cache and set JWT secret:
 ```bash
