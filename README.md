@@ -14,9 +14,30 @@
 
 2) ინსტალაცია
 ```bash
+# 1) კლონი და შესვლა
+git clone <repo-url> contracts-management && cd contracts-management
+
+# 2) .env
+cp .env.example .env
+# დაარედაქტირე .env → შეავსე DB_* (სახელი/მომხმარებელი/პაროლი) და საჭირო ველები (APP_URL და სხვ.)
+
+# 3) პაკეტები
 composer install
-# შექმენი .env ფაილი
-php artisan key:generate
+
+# 3.1) Cache დირექტორიები/პერმისიები (ბარემ თავიდანვე)
+mkdir -p storage/framework/{cache/data,sessions,views,testing} bootstrap/cache
+chmod -R 775 storage bootstrap/cache
+php artisan optimize:clear
+
+# 4) გასაღებები
+php artisan key:generate --ansi
+php artisan jwt:secret --force
+
+# 5) Storage symlink (ფაილების სერვინგი)
+php artisan storage:link
+
+# 6) მიგრაციები და საწყისი მონაცემები
+# თუ ბაზა ჯერ არ არსებობს, შექმენი (მაგ.: createdb contracts)
 php artisan migrate --seed
 ```
 
