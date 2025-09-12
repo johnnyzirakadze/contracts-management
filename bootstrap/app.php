@@ -83,5 +83,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('backup:run --only-db')->dailyAt('02:00');
         // Weekly full backup on Mondays 03:00
         $schedule->command('backup:run')->weeklyOn(1, '03:00');
+        // Contract expiry reminders daily at 09:00 Asia/Tbilisi
+        $schedule->command('contracts:send-reminders')->dailyAt('09:00')->timezone('Asia/Tbilisi');
     })
     ->create();

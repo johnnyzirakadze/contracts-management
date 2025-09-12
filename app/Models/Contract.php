@@ -27,12 +27,24 @@ class Contract extends Model
 		'status',
 		'responsible_manager_id',
 		'payment_type',
+		'initiator_id',
+		'notify_group_email',
+		'reminder_60_sent_at',
+		'reminder_60_attempts',
+		'reminder_60_last_attempt_at',
+		'reminder_30_sent_at',
+		'reminder_30_attempts',
+		'reminder_30_last_attempt_at',
 	];
 
 	protected $casts = [
 		'sign_date' => 'date',
 		'expiry_date' => 'date',
 		'amount' => 'decimal:2',
+		'reminder_60_sent_at' => 'datetime',
+		'reminder_60_last_attempt_at' => 'datetime',
+		'reminder_30_sent_at' => 'datetime',
+		'reminder_30_last_attempt_at' => 'datetime',
 	];
 
 	public function type()
@@ -58,6 +70,11 @@ class Contract extends Model
 	public function responsibleManager()
 	{
 		return $this->belongsTo(User::class, 'responsible_manager_id');
+	}
+
+	public function initiator()
+	{
+		return $this->belongsTo(Initiator::class, 'initiator_id');
 	}
 }
 

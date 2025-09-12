@@ -713,6 +713,12 @@
                                         "example": null,
                                         "nullable": true
                                     },
+                                    "initiator_id": {
+                                        "description": "ინიციატორი (initiators.id)",
+                                        "type": "integer",
+                                        "example": 1,
+                                        "nullable": true
+                                    },
                                     "payment_type": {
                                         "description": "გადახდის ტიპი",
                                         "type": "string",
@@ -950,6 +956,12 @@
                                     },
                                     "responsible_manager_id": {
                                         "description": "პასუხისმგებელი მენეჯერი",
+                                        "type": "integer",
+                                        "example": 1,
+                                        "nullable": true
+                                    },
+                                    "initiator_id": {
+                                        "description": "ინიციატორი (initiators.id)",
                                         "type": "integer",
                                         "example": 1,
                                         "nullable": true

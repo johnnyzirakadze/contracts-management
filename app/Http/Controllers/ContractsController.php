@@ -142,6 +142,7 @@ class ContractsController extends Controller
 	 *       @OA\Property(property="amount", type="number", format="float", nullable=true, description="თანხა", example=12000.00),
 	 *       @OA\Property(property="status", type="string", description="სტატუსი (default: დასამტკიცებელი)", example="დასამტკიცებელი"),
 	 *       @OA\Property(property="responsible_manager_id", type="integer", nullable=true, description="პასუხისმგებელი მენეჯერი (users.id)", example=null),
+	 *       @OA\Property(property="initiator_id", type="integer", nullable=true, description="ინიციატორი (initiators.id)", example=1),
 	 *       @OA\Property(property="payment_type", type="string", description="გადახდის ტიპი", example="ერთჯერადი")
 	 *     )
 	 *   ),
@@ -183,6 +184,7 @@ class ContractsController extends Controller
 	 *       @OA\Property(property="amount", type="number", format="float", nullable=true, description="თანხა", example=15000.00),
 	 *       @OA\Property(property="status", type="string", description="სტატუსი", example="აქტიური"),
 	 *       @OA\Property(property="responsible_manager_id", type="integer", nullable=true, description="პასუხისმგებელი მენეჯერი", example=1),
+	 *       @OA\Property(property="initiator_id", type="integer", nullable=true, description="ინიციატორი (initiators.id)", example=1),
 	 *       @OA\Property(property="payment_type", type="string", description="გადახდის ტიპი", example="ყოველთვიური")
 	 *     )
 	 *   ),
@@ -307,6 +309,7 @@ class ContractsController extends Controller
 			'amount' => ['nullable','numeric','min:0'],
 			'status' => [$ruleRequired,'string','max:255'],
 			'responsible_manager_id' => ['nullable','integer','exists:users,id'],
+			'initiator_id' => ['nullable','integer','exists:initiators,id'],
 			'payment_type' => [$ruleRequired,'string','max:255'],
 		]);
 	}
@@ -314,7 +317,7 @@ class ContractsController extends Controller
 	private function baseQuery(): Builder
 	{
 		return Contract::query()
-			->with(['type', 'contractor', 'branch', 'department', 'responsibleManager']);
+			->with(['type', 'contractor', 'branch', 'department', 'responsibleManager', 'initiator']);
 	}
 
 	private function applyFilters(Request $request, Builder $query): Builder
